@@ -166,3 +166,27 @@ model ContactMessage {
 
   @@map("contact_messages")
 }
+
+model BlogPost {
+  id          String         @id @default(uuid())
+  title       String
+  slug        String         @unique
+  excerpt     String         @db.Text
+  content     String?        @db.Text
+  coverUrl    String?
+  tags        String[]       @default([])
+  readMinutes Int            @default(5)
+  publishedAt DateTime       @default(now())
+  status      BlogPostStatus @default(PUBLISHED)
+  featured    Boolean        @default(false)
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("blog_posts")
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+}

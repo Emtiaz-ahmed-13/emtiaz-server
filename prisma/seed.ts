@@ -15,6 +15,7 @@ async function main() {
 
   // Wipe all portfolio data
   await prisma.contactMessage.deleteMany();
+  await prisma.blogPost.deleteMany();
   await prisma.achievement.deleteMany();
   await prisma.project.deleteMany();
   await prisma.skill.deleteMany();
@@ -40,8 +41,10 @@ async function main() {
       bio: "I build modern web applications with TypeScript, React, Node.js, NestJS, and PostgreSQL. Passionate about clean APIs, scalable backends, and polished user experiences.",
       location: "Bangladesh",
       email: adminEmail,
+      avatarUrl: "https://i.ibb.co/JW5D3rdH/p.jpg",
       githubUrl: "https://github.com/Emtiaz-ahmed-13",
-      linkedinUrl: "https://linkedin.com/in/emtiazahmed",
+      linkedinUrl: "https://www.linkedin.com/in/emtiaz-ahmed-2892871a2/",
+      websiteUrl: "https://emtiaz-client.vercel.app/",
       available: true,
     },
   });
@@ -227,6 +230,55 @@ async function main() {
           "https://i.ibb.co/HDLLdDpR/Screenshot-2026-05-28-at-11-01-38-PM.png",
         ],
       },
+      {
+        title: "Nebula Chat",
+        slug: "nebula-chat",
+        shortDesc:
+          "Secure, self-destructing private chat rooms with end-to-end encryption",
+        description:
+          "Nebula Chat is a privacy-first messaging platform for ephemeral conversations. Rooms self-destruct after a chosen duration (5 min to 1 hour), messages are end-to-end encrypted, and nothing is stored permanently. Built on Next.js 16 App Router with Elysia.js API routes, Upstash Redis for ephemeral storage, and WebSocket for real-time delivery — designed so a sensitive conversation leaves no permanent trace on the server or the client.",
+        techStack: [
+          "Next.js 16",
+          "TypeScript",
+          "Tailwind CSS",
+          "Elysia.js",
+          "Upstash Redis",
+          "WebSockets",
+          "Bun",
+        ],
+        imageUrl:
+          "https://i.ibb.co/j9mRq8tz/Screenshot-2026-05-29-at-12-41-13-AM.png",
+        liveUrl: "https://nebula-gamma-teal.vercel.app/",
+        githubUrl: "https://github.com/Emtiaz-ahmed-13/nebula",
+        featured: true,
+        published: true,
+        order: 5,
+        role: "Full Stack Engineer",
+        duration: "2 weeks",
+        problem:
+          "Mainstream chat apps store every message indefinitely — even 'disappearing' messages typically sit on a server until a timer runs out. For genuinely sensitive conversations (legal, medical, journalistic, personal) people fall back to in-person meetings or fragile workarounds. There was no zero-friction tool that combined three properties: end-to-end encryption, true ephemeral storage (TTL at the database level, not just on the UI), and a one-click shareable room link that worked on any device with no install.",
+        approach:
+          "I built Nebula on Next.js 16 App Router so the marketing surface and the chat UI live in the same codebase, then dropped Elysia.js inside `/api` for typed, high-performance request handling. The core trick is Upstash Redis with native key TTL — every message and every room is stored with an expiration aligned to the room duration, so deletion is enforced by the database itself, not by a cron job that might be skipped. Real-time delivery uses WebSocket connections multiplexed per room. Auth is intentionally minimal: token-based with HTTP-only secure cookies scoped to the room, so there is no account, no email, no profile to leak. Rate limiting and input sanitisation are layered in to keep the public surface safe.",
+        outcome:
+          "Shipped a deployed product on Vercel with 5-minute to 1-hour room durations, real-time messaging at sub-100ms perceived latency, and provable ephemeral storage (Redis TTL guarantees keys are evicted server-side when the room expires). The whole flow — create room → share link → chat → auto-destruct — works in under 10 seconds on first load, on mobile and desktop, with zero account creation friction. Codebase is ~97% TypeScript and structured so each feature (rooms, messages, auth, proxy) is its own module.",
+        challenges:
+          "The hardest piece was making the self-destruct guarantee actually hold under WebSocket reconnects and tab refreshes. I had to align three independent timers — the Redis TTL, the WebSocket session lifecycle, and the client-side countdown — so a client that reconnects 1 second before expiry doesn't accidentally extend the room. The fix was to treat Redis TTL as the single source of truth: every reconnect re-reads the remaining TTL from the server, the WebSocket layer never extends it, and the client UI is purely a mirror of what the server says. The second challenge was rate-limiting room creation without hurting legitimate users — solved with a per-IP token bucket backed by Redis.",
+        features: [
+          "Self-destructing rooms with 5/10/15/30/60-minute durations",
+          "End-to-end encrypted messages — server never sees plaintext",
+          "True ephemeral storage backed by Upstash Redis TTL",
+          "Real-time messaging over WebSockets with auto-reconnect",
+          "Shareable one-click room links with auto-extraction from pasted URLs",
+          "Capped at 2 participants per room for genuine 1:1 privacy",
+          "No accounts, no email, no profile — token-based session in HTTP-only cookies",
+          "Rate limiting and input sanitisation on every public endpoint",
+          "Responsive UI built with Tailwind CSS — works on mobile and desktop",
+          "Deployed on Vercel with Upstash Redis as the only backing service",
+        ],
+        screenshots: [
+          "https://i.ibb.co/j9mRq8tz/Screenshot-2026-05-29-at-12-41-13-AM.png",
+        ],
+      },
     ],
   });
 
@@ -362,6 +414,56 @@ async function main() {
         imageUrl: "https://i.ibb.co/hJnptxrt/ph.jpg",
         images: ["https://i.ibb.co/hJnptxrt/ph.jpg"],
         order: 4,
+      },
+    ],
+  });
+
+  await prisma.blogPost.createMany({
+    data: [
+      {
+        title: "Shipping PurrfectHub's MVP in 6 weeks",
+        slug: "shipping-purrfecthub-mvp-in-6-weeks",
+        excerpt:
+          "How I designed a two-sided adoption marketplace with Next.js, Prisma, and a finite-state application flow — and the trade-offs that made the timeline possible.",
+        content:
+          "## Why a state machine\n\nAdoption applications are deceptively complex — they look like a form, but they're really a workflow: draft → submitted → in-review → approved/rejected, with side-effects on each transition (emails, status fan-out, audit log).\n\nInstead of scattering `if (status === ...)` checks across the codebase, I modelled the lifecycle as an explicit finite-state column in Postgres plus a transition validator in the service layer. Every transition has to go through one function. That made the UI trivial: each state simply renders the next legal action.\n\n## What I'd do differently\n\nNext time I'd reach for Inngest (or a small Postgres-backed queue) for the email side-effects sooner. Doing them synchronously in the request handler was fine at MVP scale, but it'll be the first thing to bite at higher volume.",
+        coverUrl: "https://i.ibb.co/8D7CfD5Q/pro.jpg",
+        tags: ["Next.js", "Prisma", "Architecture"],
+        readMinutes: 7,
+        publishedAt: new Date("2026-05-12"),
+        status: "PUBLISHED",
+        featured: true,
+        order: 1,
+      },
+      {
+        title: "Building Nebula: real-time chat without a database",
+        slug: "building-nebula-realtime-chat-without-a-database",
+        excerpt:
+          "Storing every message in Redis with native TTL means deletion is enforced by the store itself, not a flaky cron job. Why the simplest answer is usually the right one.",
+        content:
+          "## The setup\n\nNebula is an ephemeral group chat — every room has a duration, and when the timer runs out the room and every message in it disappear. No accounts, no DM history, no profile.\n\nThe entire data layer is **Redis** with TTL. Each message is a key whose expiration matches the room's expiration. There is no `DELETE` query, no cron job, no 'sweeper' process. Deletion is a property of the storage engine.\n\n## Why this matters\n\nThe more I build, the more I trust mechanisms over policies. A cron job that's *supposed to* delete data after N days will eventually be paused, mis-configured, or skipped. A Redis key with TTL just stops existing. The system can't get the deletion wrong, even by accident.",
+        coverUrl: null,
+        tags: ["Redis", "WebSockets", "Privacy"],
+        readMinutes: 5,
+        publishedAt: new Date("2026-04-28"),
+        status: "PUBLISHED",
+        featured: false,
+        order: 2,
+      },
+      {
+        title: "TypeScript patterns I wish I knew earlier",
+        slug: "typescript-patterns-i-wish-i-knew-earlier",
+        excerpt:
+          "Discriminated unions, branded types, and the underrated `satisfies` operator — small ideas that quietly make a codebase easier to refactor years later.",
+        content:
+          "## 1. Discriminated unions over optional fields\n\nWhen a value can be in one of N states, model it as a union with a literal `kind` tag, not an object with optional fields. The compiler will then *force* you to handle every case in a `switch`, and adding a new state turns a runtime bug into a compile error.\n\n## 2. `satisfies` over `as`\n\n`as` lies; `satisfies` verifies. Use `as` only when you genuinely know better than the compiler (and add a comment saying why).\n\n## 3. Branded types for ids\n\nA `string` and a `UserId` are the same at runtime but you don't want to mix them. A tiny `type UserId = string & { __brand: 'UserId' }` catches an entire class of bugs at the type level.",
+        coverUrl: null,
+        tags: ["TypeScript", "Patterns"],
+        readMinutes: 6,
+        publishedAt: new Date("2026-04-09"),
+        status: "PUBLISHED",
+        featured: false,
+        order: 3,
       },
     ],
   });

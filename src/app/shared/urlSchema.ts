@@ -10,7 +10,8 @@ export const normalizeUrlString = (value: string): string => {
 
 export const optionalUrlField = z.preprocess(
   (val) => {
-    if (val === null || val === undefined || val === "") return null;
+    if (val === undefined) return undefined;
+    if (val === null || val === "") return null;
     if (typeof val !== "string") return val;
     return normalizeUrlString(val);
   },

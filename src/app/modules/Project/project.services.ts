@@ -68,11 +68,13 @@ const createProject = async (payload: TCreateProject) => {
   const existing = await prisma.project.findUnique({ where: { slug } });
   if (existing) throw new ApiError(409, "Project slug already exists.");
 
+  const imageUrl = (await resolveImageUrl(payload.imageUrl)) ?? null;
+
   return prisma.project.create({
     data: {
       ...payload,
       slug,
-      imageUrl: resolveImageUrl(payload.imageUrl) ?? null,
+      imageUrl,
     },
   });
 };
@@ -90,7 +92,7 @@ const updateProject = async (id: string, payload: Partial<TCreateProject>) => {
   }
 
   if (payload.imageUrl !== undefined) {
-    data.imageUrl = resolveImageUrl(payload.imageUrl) ?? null;
+    data.imageUrl = (await resolveImageUrl(payload.imageUrl)) ?? null;
   }
 
   return prisma.project.update({ where: { id }, data });

@@ -24,10 +24,19 @@ app.use(
       // Allow requests without origin (server-to-server, curl, mobile webviews)
       if (!origin) return callback(null, true);
       if (allowedOrigins.has(origin)) return callback(null, true);
-      // Allow any *.vercel.app preview/prod by default
       try {
-        if (/\.vercel\.app$/i.test(new URL(origin).hostname))
+        const hostname = new URL(origin).hostname;
+        // Allow any localhost / loopback origin on any port (dev convenience)
+        if (
+          hostname === "localhost" ||
+          hostname === "127.0.0.1" ||
+          hostname === "[::1]" ||
+          hostname === "::1"
+        ) {
           return callback(null, true);
+        }
+        // Allow any *.vercel.app preview/prod by default
+        if (/\.vercel\.app$/i.test(hostname)) return callback(null, true);
       } catch {
         /* malformed origin → fall through and reject */
       }

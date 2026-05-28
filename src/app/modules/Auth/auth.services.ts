@@ -26,6 +26,11 @@ const login = async (payload: TLogin) => {
 
   if (!isPasswordValid) throw new ApiError(401, "Invalid Credentials.");
 
+  // Admin-only portal. Non-admin accounts cannot sign in.
+  if (user.role !== "ADMIN") {
+    throw new ApiError(403, "Access restricted to admin users.");
+  }
+
   const { password: _, ...userWithoutPassword } = user;
 
   const accessToken = jwtHelpers.generateToken(

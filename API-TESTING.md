@@ -101,7 +101,7 @@ Response থেকে `data.accessToken` কপি করুন → `TOKEN` হ�
   "resumeUrl": "https://example.com/resume.pdf",
   "avatarUrl": "https://example.com/avatar.jpg",
   "githubUrl": "https://github.com/emtiazahmed",
-  "linkedinUrl": "https://linkedin.com/in/emtiazahmed",
+  "linkedinUrl": "https://www.linkedin.com/in/emtiaz-ahmed-2892871a2/",
   "twitterUrl": "https://twitter.com/emtiazahmed",
   "websiteUrl": "https://emtiaz.dev",
   "available": true
