@@ -174,6 +174,59 @@ async function main() {
         ],
         screenshots: [],
       },
+      {
+        title: "EduMentor AI",
+        slug: "edumentor-ai",
+        shortDesc:
+          "AI-powered learning platform — led a 4-person team end-to-end on the MERN stack",
+        description:
+          "EduMentor AI is an intelligent education platform that helps students learn faster through AI-driven tutoring, personalised study plans, and progress tracking. Built with the MERN stack (MongoDB · Express · React · Node.js) in a clean modular architecture — designed for scale from day one. Frontend repo: github.com/Emtiaz-ahmed-13/edumentor_ai_client · Backend repo: github.com/Emtiaz-ahmed-13/edumentor_ai_server",
+        techStack: [
+          "React 18",
+          "Vite",
+          "Tailwind CSS",
+          "shadcn/ui",
+          "Node.js",
+          "Express.js",
+          "MongoDB",
+          "Mongoose",
+          "JWT",
+          "bcrypt",
+        ],
+        imageUrl:
+          "https://i.ibb.co/HDLLdDpR/Screenshot-2026-05-28-at-11-01-38-PM.png",
+        liveUrl: "https://edumentor-ai-client.vercel.app/",
+        githubUrl: "https://github.com/Emtiaz-ahmed-13/edumentor_ai_client",
+        featured: true,
+        published: true,
+        order: 4,
+        role: "Team Lead · Full Stack Engineer",
+        duration: "6 weeks · 4-person team",
+        problem:
+          "Students working through free educational content hit two consistent walls — information overload (too many topics, no clear path) and isolation (no one to ask when stuck at 2 AM). Existing solutions are either expensive 1:1 tutoring or generic chatbots that don't remember context or track your weak spots. We set out to build an AI mentor that adapts to each learner — explains concepts, generates quizzes, and tracks progress — while staying affordable for students in emerging markets.",
+        approach:
+          "I led a 4-engineer team (2 frontend, 2 backend) and split the work along clear module boundaries — each engineer owned 1–2 features end-to-end (Auth, User, Tutor, Quiz). We standardised on a strict Module Pattern on the backend (controller / service / route / model per feature) so people could ship in parallel without merge conflicts.\n\nMy direct responsibilities as lead: system architecture, API contract design (shared Postman collection committed to the repo as the source of truth), JWT auth flow with access + refresh token rotation, PR review across both repos, and the Vercel deployment pipeline for client + server. I set the engineering rituals — daily 15-min async Discord stand-ups, a written 'definition of done' for PRs (lint pass + manual test + screenshot), and pair-programming sessions for the trickier auth and CORS work.\n\nWe let the frontend start integrating against the Postman contract before the backend was 'finished' — that overlap cut total delivery time by roughly 30%.",
+        outcome:
+          "Shipped a deployed MVP in 6 weeks with full authentication, user profiles, AI tutoring chat, and quiz generation. The team merged 100+ PRs across both repos with zero production rollbacks. Backend exposes 20+ documented endpoints (Postman collection lives in the repo) with consistent response envelopes and a single global error handler. Code is structured so a teammate can scaffold a new feature module in ~30 minutes using the existing template — onboarding the 4th engineer who joined late took half a day, not a week.",
+        challenges:
+          "The hardest part wasn't the code — it was coordinating four engineers with different schedules, skill levels, and time zones. Three concrete things I had to solve as lead:\n\n1) **Merge conflict hell** in week 2 — fixed by enforcing strict module boundaries (one engineer = one feature folder) and a 'PR-per-module' policy.\n\n2) **A nasty CORS deadlock** between client (Vercel) and server (Vercel) — debugged across 3 environments, pinned it to a missing `credentials: true` plus an exact origin allowlist, then documented the fix so the team internalised it.\n\n3) **Uneven contribution** — addressed by pairing the more experienced engineers with the juniors on the harder modules (auth refresh, error handler) so knowledge actually transferred instead of bottlenecking on me.",
+        features: [
+          "MERN stack (MongoDB · Express · React · Node) with strict Module Pattern",
+          "Modular architecture — Auth and User as self-contained features (controller / service / route / model)",
+          "JWT authentication with access + refresh token rotation",
+          "Password hashing with bcrypt (configurable salt rounds)",
+          "Centralised global error handler with consistent response envelope",
+          "Standardised `sendResponse` helper for every endpoint",
+          "Postman collection committed to the repo as the team API contract",
+          "CORS-hardened API ready for multi-origin frontends",
+          "Environment-based config with startup validation",
+          "Vercel deployment for both client and server (separate projects)",
+          "Team-led delivery — 4 engineers shipping in parallel, 100+ PRs, zero rollbacks",
+        ],
+        screenshots: [
+          "https://i.ibb.co/HDLLdDpR/Screenshot-2026-05-28-at-11-01-38-PM.png",
+        ],
+      },
     ],
   });
 
@@ -200,7 +253,7 @@ async function main() {
         position: "Full Stack Developer",
         location: "Dhaka, Bangladesh",
         description:
-          "Designing and shipping production-grade full-stack web apps end-to-end. Owned the full surface area — product scoping, system architecture, backend (Node.js, Express, NestJS, PostgreSQL, Prisma), frontend (Next.js, TypeScript, Tailwind), and Docker-based deployment.\n\nNotable builds: PurrfectHub (adoption platform with multi-step applications), SkillSync (freelancer ↔ client collaboration hub with escrow + Kanban), and TradeNest (production-grade e-commerce backend API with Swagger docs, rate limiting, and security hardening).",
+          "Designing and shipping production-grade full-stack web apps end-to-end. Owned the full surface area — product scoping, system architecture, backend (Node.js, Express, NestJS, PostgreSQL, Prisma, MongoDB), frontend (Next.js, React, TypeScript, Tailwind), and Docker- / Vercel-based deployment.\n\nNotable builds:\n• PurrfectHub — adoption platform with multi-step applications.\n• SkillSync — freelancer ↔ client collaboration hub with escrow + Kanban.\n• TradeNest — production-grade e-commerce backend API with Swagger docs, rate limiting, and security hardening.\n• EduMentor AI — led a 4-engineer team on a MERN-stack learning platform; owned architecture, API contract, JWT auth flow, PR review, and the Vercel pipeline. Shipped MVP in 6 weeks with 100+ PRs across two repos and zero production rollbacks.",
         startDate: new Date("2024-01-01"),
         endDate: null,
         current: true,
