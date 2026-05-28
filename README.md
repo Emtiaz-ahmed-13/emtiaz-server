@@ -2,9 +2,9 @@
 
 # emtiaz-server
 
-**Portfolio backend** — a production-ready REST API that powers [emtiaz-client](https://github.com/Emtiaz-ahmed-13/emtiaz-client).
+**REST API and content backend for Emtiaz Ahmed's portfolio.**
 
-Express 4 + TypeScript + **Prisma 7** + PostgreSQL with JWT auth, Zod validation, modular feature architecture, SMTP-backed contact form, and a single-aggregator endpoint that delivers the entire portfolio in one round-trip.
+Express + TypeScript + Prisma + PostgreSQL backend powering projects, blog posts, achievements, contact messages, and the private admin CMS used by the frontend.
 
 [![Live API](https://img.shields.io/badge/API-emtiaz--server.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://emtiaz-server.vercel.app)
 [![Frontend](https://img.shields.io/badge/Frontend-emtiaz--client-1e293b?style=for-the-badge&logo=next.js&logoColor=white)](https://github.com/Emtiaz-ahmed-13/emtiaz-client)
@@ -15,277 +15,277 @@ Express 4 + TypeScript + **Prisma 7** + PostgreSQL with JWT auth, Zod validation
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-7-2d3748?logo=prisma&logoColor=white)
 ![Postgres](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
-![Zod](https://img.shields.io/badge/Zod-3-1e40af)
-![JWT](https://img.shields.io/badge/JWT-Auth-000000?logo=jsonwebtokens&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ed?logo=docker&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-Validation-1e40af)
+![JWT](https://img.shields.io/badge/JWT-Admin_Auth-000000?logo=jsonwebtokens&logoColor=white)
 
 </div>
 
 ---
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Highlights](#highlights)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Data Model](#data-model)
-- [API Reference](#api-reference)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Scripts](#scripts)
-- [Deployment](#deployment)
-- [Related Repository](#related-repository)
-- [License](#license)
-
----
-
 ## Overview
 
-A real backend for what is normally a static portfolio. Every section on the frontend — profile, projects with case studies, skills, experience, education, achievements, contact — is served from this API, persisted in PostgreSQL, and managed through admin-only mutation endpoints.
+`emtiaz-server` is the API layer for a full-stack portfolio. It stores every portfolio section in PostgreSQL and exposes clean REST endpoints for the frontend.
 
-Designed to be **production-shaped**: modular feature folders, Zod validation across body / query / params, centralised error handling, JWT access + refresh tokens, role-based access control, and Vercel-serverless-ready out of the box.
+The API supports:
+
+- Public portfolio aggregation
+- Public project and blog detail pages
+- Admin-only project CRUD
+- Admin-only blog CRUD
+- Contact form storage and email notification
+- Admin authentication with JWT and bcrypt
+- ImgBB share-link resolution for reliable cover images
 
 ## Highlights
 
-| Feature | Detail |
-|---|---|
-| **Modular architecture** | Each feature is a self-contained folder — `controller`, `services`, `validation`, `routes`, `interface`, `constant`. Adding a feature takes ~10 minutes from the existing template. |
-| **Single aggregator endpoint** | `GET /api/v1/portfolio` returns the entire portfolio (profile + projects + skills + experiences + education + achievements) in one round-trip — minimises waterfall on the client. |
-| **Type-safe validation** | Zod schemas in `*.validation.ts` for every mutation route — body, query, and params — wired through a shared `validateRequest` middleware. |
-| **JWT auth + role guard** | `accessToken` + `refreshToken`, bcrypt password hashing, `ADMIN` / `USER` roles. The `auth(...roles)` middleware decodes + verifies in one step. |
-| **Centralised error envelope** | `globalErrorHandler` maps `ZodError`, Prisma errors, JWT errors, and custom `ApiError` to a consistent `{ success, message, error }` shape. |
-| **Contact form with SMTP** | `POST /api/v1/contact` persists the message and emails the admin via Nodemailer with a dark-themed HTML template. |
-| **URL normalisation** | `urlSchema.ts` extracts plain URLs from markdown links (`[label](url)` → `url`) so the admin can paste links straight from GitHub or Notion. |
-| **Image URL resolution** | `imageUrlHelpers.ts` rewrites ImgBB page links (`https://ibb.co/<id>`) to direct image URLs at storage time. |
-| **Vercel serverless ready** | `vercel.json` + `api/index.ts` catch-all function. CORS allowlist covers localhost + `*.vercel.app` by default. |
-| **Dockerised local Postgres** | `docker-compose up -d` spins up a Postgres 16 instance for development. |
-
-## Tech Stack
-
-| Layer | Choices |
-|---|---|
-| **Runtime** | Node.js 20 · Express 4 · TypeScript 5 |
-| **Database** | PostgreSQL 16 (local via Docker, prod on [Neon](https://neon.tech)) |
-| **ORM** | Prisma 7 with `@prisma/adapter-pg` for serverless cold-start performance |
-| **Auth** | `jsonwebtoken` (access + refresh) · `bcrypt` (configurable salt rounds) |
-| **Validation** | Zod 3 (body / query / params) |
-| **Email** | Nodemailer (Gmail App Password or any SMTP) |
-| **Security** | CORS allowlist · cookie-parser · `express-rate-limit` available |
-| **Tooling** | `ts-node-dev` for hot reload · `tsx` for seed script · ESLint |
-| **Deployment** | Vercel serverless (Node.js runtime, single catch-all function) |
+- **Single portfolio endpoint:** `GET /api/v1/portfolio` returns profile, projects, skills, experience, education, achievements, and latest posts.
+- **Blog module:** published posts for public pages, all posts for admin, create/update/delete behind auth.
+- **Project module:** public project archive and detail pages, admin project management.
+- **Admin-only auth:** login requires an `ADMIN` user; registration is not public.
+- **Zod validation:** request body/query/params are validated before controllers run.
+- **Central error handling:** consistent success/error envelopes across the API.
+- **Image URL resolver:** converts ImgBB viewer links (`ibb.co/...`) into direct CDN assets (`i.ibb.co/...`).
+- **Dev-friendly CORS:** any localhost port is allowed in development; Vercel previews are allowed by default.
 
 ## Architecture
 
+```mermaid
+flowchart TD
+  Client[Next.js Client] --> API[Express API]
+  Admin[Admin CMS] --> Auth[Auth Module]
+  Admin --> API
+
+  API --> Router[/api/v1 Router]
+  Router --> Public[Public Modules]
+  Router --> Private[Admin Modules]
+
+  Private --> Guard[auth ADMIN]
+  Private --> Validate[Zod validateRequest]
+  Public --> Validate
+
+  Validate --> Controller[Controller]
+  Controller --> Service[Service Layer]
+  Service --> Prisma[Prisma Client]
+  Prisma --> DB[(PostgreSQL)]
+
+  Service --> Image[ImgBB URL Resolver]
+  Controller --> Response[sendResponse]
+  API --> Error[globalErrorHandler]
 ```
-┌──── HTTP Request ────────────────────────────────────────────┐
-│                                                              │
-│   cors()          → allowlist + *.vercel.app                 │
-│   cookieParser()                                             │
-│   json() / urlencoded()                                      │
-│         │                                                    │
-│         ▼                                                    │
-│   /api/v1/* router  ──→  feature route                       │
-│         │                  │                                 │
-│         │                  ├─ auth(roles?)         (if private)
-│         │                  ├─ validateRequest(zod) (if mutation)
-│         │                  ├─ controller                     │
-│         │                  └─ services ─→ Prisma ─→ Postgres │
-│         │                                                    │
-│         ▼                                                    │
-│   globalErrorHandler  ── handles ZodError / JWT / Prisma /   │
-│                          ApiError / unknown                  │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
+
+## Request Lifecycle
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant E as Express
+  participant R as Route
+  participant A as Auth Guard
+  participant Z as Zod Validation
+  participant S as Service
+  participant P as Prisma
+  participant D as PostgreSQL
+
+  C->>E: HTTP request
+  E->>R: /api/v1/* router
+  alt Admin route
+    R->>A: verify Bearer token + ADMIN role
+  end
+  R->>Z: validate body/query/params
+  Z->>S: controller calls service
+  S->>P: Prisma query/mutation
+  P->>D: SQL
+  D-->>P: rows
+  P-->>S: typed data
+  S-->>C: JSON response envelope
 ```
+
+## Tech Stack
+
+| Area | Stack |
+|---|---|
+| Runtime | Node.js 20 |
+| Framework | Express 4 |
+| Language | TypeScript |
+| ORM | Prisma 7 + `@prisma/adapter-pg` |
+| Database | PostgreSQL |
+| Validation | Zod |
+| Auth | JWT + bcrypt |
+| Email | Nodemailer |
+| Dev DB | Docker Compose |
+| Deployment | Vercel serverless |
 
 ## Project Structure
 
-```
-emtiaz-server/
-├── api/
-│   └── index.ts                # Vercel serverless entry — re-exports Express app
-├── prisma/
-│   ├── schema.prisma           # Source of truth for the DB
-│   └── seed.ts                 # Admin user + profile + projects + skills + ...
-├── src/
-│   ├── app/
-│   │   ├── modules/
-│   │   │   ├── Auth/           # login / refresh / logout
-│   │   │   ├── Profile/        # profile CRUD (admin)
-│   │   │   ├── Project/        # projects + case study fields
-│   │   │   ├── Skill/
-│   │   │   ├── Experience/
-│   │   │   ├── Education/
-│   │   │   ├── Contact/        # public POST + admin list/read/delete
-│   │   │   └── Portfolio/      # public aggregator
-│   │   ├── middleware/
-│   │   │   ├── auth.ts             # JWT verify + role guard
-│   │   │   ├── validateRequest.ts  # Zod across body/query/params
-│   │   │   └── globalErrorHandler.ts
-│   │   ├── routes/             # Single mount point for all modules
-│   │   ├── errors/             # ApiError class + error types
-│   │   └── shared/             # prisma client singleton
-│   ├── config/                 # env loader
-│   ├── helpers/
-│   │   ├── jwtHelpers.ts       # sign / verify
-│   │   ├── paginationHelpers.ts
-│   │   ├── slugHelpers.ts
-│   │   ├── imageUrlHelpers.ts  # ImgBB page → direct
-│   │   ├── paramsHelpers.ts
-│   │   ├── urlSchema.ts        # Markdown link → plain URL
-│   │   └── mailer.ts           # Nodemailer transporter + templates
-│   ├── app.ts                  # Express app composition
-│   └── server.ts               # http.listen wrapper (local dev)
-├── docker-compose.yml          # Local Postgres 16
-├── vercel.json                 # Serverless build + routing
-├── API.md                      # Full endpoint reference
-├── API-TESTING.md              # Step-by-step curl examples
-├── prisma.config.ts            # Prisma 7 config
-├── tsconfig.json
-└── package.json
+```txt
+src/
+├── app/
+│   ├── modules/
+│   │   ├── Auth/          # Admin login/register/me
+│   │   ├── Blog/          # Blog CRUD + public posts
+│   │   ├── Project/       # Project CRUD + public detail
+│   │   ├── Portfolio/     # Public aggregate endpoint
+│   │   ├── Contact/       # Contact form + admin inbox
+│   │   ├── Profile/
+│   │   ├── Skill/
+│   │   ├── Experience/
+│   │   ├── Education/
+│   │   └── Achievement/
+│   ├── middleware/
+│   │   ├── auth.ts
+│   │   ├── validateRequest.ts
+│   │   └── globalErrorHandler.ts
+│   ├── routes/
+│   ├── shared/
+│   └── errors/
+├── config/
+├── helpers/
+│   ├── imageUrlHelpers.ts
+│   ├── jwtHelpers.ts
+│   ├── paginationHelpers.ts
+│   ├── slugHelpers.ts
+│   └── userHelpers.ts
+├── app.ts
+└── server.ts
+
+prisma/
+├── schema.prisma
+└── seed.ts
 ```
 
 ## Data Model
 
 | Model | Purpose |
 |---|---|
-| `User` | Admin authentication (only the seeded admin exists by default) |
-| `Profile` | Hero / about section content — single row |
-| `Project` | Card content + case-study fields (`problem`, `approach`, `outcome`, `challenges`, `role`, `duration`, `features`, `screenshots`) |
-| `Skill` | Grouped skills with proficiency (0-100) |
-| `Experience` | Work / club / OSS roles with `current` flag |
-| `Education` | Degrees / institutions |
-| `Achievement` | Hackathons, contests, certifications — typed via `AchievementCategory` enum |
-| `ContactMessage` | Persisted submissions from the contact form |
+| `User` | Admin authentication |
+| `Profile` | Hero/about/contact profile data |
+| `Project` | Project cards and case-study content |
+| `BlogPost` | Blog archive and detail pages |
+| `Skill` | Skill categories and levels |
+| `Experience` | Work, club, and OSS timeline |
+| `Education` | Education timeline |
+| `Achievement` | Awards, certificates, hackathons |
+| `ContactMessage` | Contact form submissions |
 
-Full schema in [`prisma/schema.prisma`](./prisma/schema.prisma).
+Full schema: [`prisma/schema.prisma`](./prisma/schema.prisma)
 
 ## API Reference
 
-Detailed endpoint docs live in [`API.md`](./API.md) and worked curl examples in [`API-TESTING.md`](./API-TESTING.md).
+Base URL:
+
+```txt
+http://localhost:5001/api/v1
+```
 
 ### Public endpoints
 
 | Method | Path | Purpose |
 |---|---|---|
-| `GET` | `/` | Health check |
-| `GET` | `/api/v1/portfolio` | Aggregator — profile + projects + skills + experience + education + achievements |
-| `GET` | `/api/v1/projects` | Paginated project list |
-| `GET` | `/api/v1/projects/slug/:slug` | Single project case study |
-| `POST` | `/api/v1/contact` | Submit contact form (saves to DB + emails admin) |
+| `GET` | `/portfolio` | Full public portfolio payload |
+| `GET` | `/projects` | Published projects |
+| `GET` | `/projects/slug/:slug` | Project detail |
+| `GET` | `/blog` | Published blog posts |
+| `GET` | `/blog/slug/:slug` | Blog post detail |
+| `POST` | `/contact` | Submit contact message |
 
-### Admin endpoints (require `Bearer <accessToken>`)
+### Admin endpoints
+
+Require:
+
+```txt
+Authorization: Bearer <accessToken>
+```
 
 | Method | Path | Purpose |
 |---|---|---|
-| `POST` | `/api/v1/auth/login` | Issue access + refresh tokens |
-| `POST` | `/api/v1/auth/refresh-token` | Rotate access token |
-| `POST` / `PATCH` / `DELETE` | `/api/v1/projects[...]` | Full project CRUD |
-| `POST` / `PATCH` / `DELETE` | `/api/v1/skills[...]` · `/experiences[...]` · `/education[...]` · `/achievements[...]` | Section CRUD |
-| `PATCH` | `/api/v1/profile` | Update hero / about content |
-| `GET` / `DELETE` | `/api/v1/contact[...]` | Inbox view + cleanup |
+| `POST` | `/auth/login` | Admin login |
+| `GET` | `/auth/me` | Current admin |
+| `GET` | `/blog/admin/all` | All posts including drafts |
+| `POST` | `/blog` | Create post |
+| `PATCH` | `/blog/:id` | Update post |
+| `DELETE` | `/blog/:id` | Delete post |
+| `POST` | `/projects` | Create project |
+| `PATCH` | `/projects/:id` | Update project |
+| `DELETE` | `/projects/:id` | Delete project |
 
-All responses follow:
+Response shape:
 
 ```json
-{ "success": true, "message": "...", "data": { ... } }
+{
+  "success": true,
+  "message": "Operation successful.",
+  "data": {}
+}
 ```
 
 ## Getting Started
-
-**Prerequisites:** Node 20+ · Docker · npm 10+
 
 ```bash
 git clone git@github.com:Emtiaz-ahmed-13/emtiaz-server.git
 cd emtiaz-server
 npm install
-
 cp .env.sample .env
-# Edit DATABASE_URL, JWT secrets, ADMIN_*, SMTP_* (use a Gmail App Password)
-
-docker compose up -d                  # Postgres 16 on localhost:5434
-npx prisma db push                    # Create schema
-npm run db:seed                       # Seed admin + portfolio content
-
-npm run dev                           # ts-node-dev hot reload on :5001
+docker compose up -d
+npx prisma db push
+npm run db:seed
+npm run dev
 ```
 
 Smoke test:
 
 ```bash
-curl http://localhost:5001/api/v1/portfolio | jq '.data.projects[].title'
+curl http://localhost:5001/api/v1/portfolio
 ```
 
 ## Environment Variables
 
-| Key | Required | Description |
+| Key | Required | Purpose |
 |---|---|---|
-| `NODE_ENV` | yes | `development` / `production` |
-| `PORT` | yes | Local port (default `5001`) |
-| `DATABASE_URL` | yes | Postgres connection string (Neon-compatible) |
-| `JWT_SECRET` | yes | Access-token signing secret |
-| `JWT_EXPIRES_IN` | yes | e.g. `1d` |
-| `JWT_REFRESH_TOKEN_SECRET` | yes | Refresh-token signing secret |
-| `JWT_REFRESH_TOKEN_EXPIRES_IN` | yes | e.g. `7d` |
-| `JWT_RESET_PASS_TOKEN` | yes | Password-reset token secret |
-| `JWT_RESET_PASS_TOKEN_EXPIRES_IN` | yes | e.g. `10m` |
-| `ADMIN_EMAIL` | yes | Used by `db:seed` to create the admin user |
-| `ADMIN_PASSWORD` | yes | Seed admin password |
-| `ADMIN_NAME` | yes | Seed admin display name |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` / `SMTP_USER` / `SMTP_PASS` | optional | Nodemailer config — Gmail App Password works out of the box |
-| `CORS_ORIGINS` | optional | Comma-separated additional client origins (`*.vercel.app` is already allowed by default) |
-
-A `.env.sample` is provided as a template.
+| `NODE_ENV` | Yes | `development` or `production` |
+| `PORT` | Yes | Local server port, usually `5001` |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `JWT_SECRET` | Yes | Access token signing secret |
+| `JWT_EXPIRES_IN` | Yes | Access token lifetime |
+| `JWT_REFRESH_TOKEN_SECRET` | Yes | Refresh token signing secret |
+| `JWT_REFRESH_TOKEN_EXPIRES_IN` | Yes | Refresh token lifetime |
+| `ADMIN_EMAIL` | Yes | Seeded admin email |
+| `ADMIN_PASSWORD` | Yes | Seeded admin password |
+| `ADMIN_NAME` | Yes | Seeded admin display name |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | Optional | Contact email delivery |
+| `CORS_ORIGINS` | Optional | Extra allowed origins |
 
 ## Scripts
 
 | Command | Purpose |
 |---|---|
-| `npm run dev` | `ts-node-dev` hot-reload server on port `PORT` |
-| `npm run build` | `prisma generate` + `tsc` → `dist/` |
-| `npm run start` | Run compiled output (`node dist/server.js`) |
-| `npm run db:migrate` | `prisma migrate dev` (creates a migration) |
-| `npm run db:seed` | Wipes and reseeds the database (`tsx prisma/seed.ts`) |
-| `npm run db:reset` | `prisma migrate reset` |
+| `npm run dev` | Start local server with hot reload |
+| `npm run build` | Generate Prisma client and compile TypeScript |
+| `npm run start` | Run compiled server |
+| `npm run db:migrate` | Create/apply dev migration |
+| `npm run db:seed` | Seed admin and portfolio data |
+| `npm run db:reset` | Reset database and rerun migrations |
 
 ## Deployment
 
-Hosted on **Vercel** as a single catch-all serverless function (`api/index.ts` re-exports the Express app, `vercel.json` routes `/(.*)` to it).
+The API is deployed to Vercel as a serverless Express app.
 
-**Database:** Neon Postgres (Singapore region, free tier).
+Production checklist:
 
-**Step-by-step:**
+1. Create a PostgreSQL database.
+2. Set every required env var in Vercel.
+3. Set `CORS_ORIGINS` to the frontend URL if using a custom domain.
+4. Run Prisma schema setup against production DB.
+5. Push `main`.
 
-1. **Provision Postgres** — create a Neon (or Vercel Postgres / Supabase) project and grab the connection string.
+Live API:
 
-2. **Set env vars on Vercel** for the `emtiaz-server` project — every key from the [Environment Variables](#environment-variables) table.
-
-3. **Set `CORS_ORIGINS`** to your deployed frontend URL — e.g. `https://emtiaz-client.vercel.app`. `*.vercel.app` is already allowed by default, but be explicit if you use a custom domain.
-
-4. **Push to `main`** — Vercel auto-builds. `vercel-build` runs `prisma generate`.
-
-5. **Run migrations + seed against the cloud DB** (one-off, from your laptop):
-
-   ```bash
-   DATABASE_URL="<neon-connection-string>" npx prisma db push
-   DATABASE_URL="<neon-connection-string>" npm run db:seed
-   ```
-
-6. **Verify:**
-
-   ```bash
-   curl https://emtiaz-server.vercel.app/api/v1/portfolio | jq '.data.projects[].title'
-   ```
-
-Live deployment: https://emtiaz-server.vercel.app
+```txt
+https://emtiaz-server.vercel.app
+```
 
 ## Related Repository
 
-| Repo | What | Live |
-|---|---|---|
-| [Emtiaz-ahmed-13/emtiaz-client](https://github.com/Emtiaz-ahmed-13/emtiaz-client) | Next.js 16 portfolio frontend that consumes this API | https://emtiaz-client.vercel.app |
+- Frontend: [Emtiaz-ahmed-13/emtiaz-client](https://github.com/Emtiaz-ahmed-13/emtiaz-client)
 
 ## License
 
