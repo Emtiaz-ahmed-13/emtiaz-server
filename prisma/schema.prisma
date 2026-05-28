@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  headline    String
+  bio         String   @db.Text
+  location    String?
+  resumeUrl   String?
+  avatarUrl   String?
+  githubUrl   String?
+  linkedinUrl String?
+  twitterUrl  String?
+  websiteUrl  String?
+  email       String
+  phone       String?
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  shortDesc   String?
+  techStack   String[]
+  imageUrl    String?
+  liveUrl     String?
+  githubUrl   String?
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  order       Int      @default(0)
+
+  // Case study fields
+  problem     String?  @db.Text
+  approach    String?  @db.Text
+  outcome     String?  @db.Text
+  challenges  String?  @db.Text
+  role        String?
+  duration    String?
+  features    String[] @default([])
+  screenshots String[] @default([])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("projects")
+}
+
+model Skill {
+  id        String        @id @default(uuid())
+  name      String
+  category  SkillCategory
+  level     Int?
+  order     Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("skills")
+}
+
+enum SkillCategory {
+  LANGUAGE
+  FRAMEWORK
+  DATABASE
+  TOOL
+  OTHER
+}
+
+model Experience {
+  id          String    @id @default(uuid())
+  company     String
+  position    String
+  description String?   @db.Text
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean   @default(false)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("experiences")
+}
+
+model Education {
+  id          String    @id @default(uuid())
+  institution String
+  degree      String
+  field       String?
+  description String?   @db.Text
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean   @default(false)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("education")
+}
+
+model Achievement {
+  id          String              @id @default(uuid())
+  title       String
+  organizer   String
+  category    AchievementCategory
+  description String?             @db.Text
+  date        DateTime
+  endDate     DateTime?
+  location    String?
+  rank        String?
+  team        String?
+  link        String?
+  imageUrl    String?
+  images      String[]            @default([])
+  order       Int                 @default(0)
+  published   Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@map("achievements")
+}
+
+enum AchievementCategory {
+  HACKATHON
+  CONTEST
+  CERTIFICATE
+  COURSE
+  AWARD
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
