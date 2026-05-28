@@ -86,8 +86,13 @@ This repo includes `vercel.json` + `api/index.ts` (single catch-all serverless f
 1. Provision a Postgres database (Neon, Vercel Postgres, or Supabase).
 2. Add the database connection string and all other env vars (`JWT_SECRET`, SMTP, etc.) in the Vercel project's "Environment Variables".
 3. Add the deployed client URL to `CORS_ORIGINS`.
-4. Push to `main` — Vercel auto-deploys, runs `prisma generate && prisma migrate deploy` (via `vercel-build`).
-5. Manually run a one-off seed against the cloud DB:
+4. Push to `main` — Vercel auto-deploys (`vercel-build` runs `prisma generate`).
+5. **After first deploy, run migrations + seed against the cloud DB locally:**
+   ```bash
+   DATABASE_URL="<cloud-url>" npx prisma migrate deploy
+   DATABASE_URL="<cloud-url>" npm run db:seed
+   ```
+6. Manually run a one-off seed against the cloud DB:
    ```bash
    DATABASE_URL="<cloud-url>" npm run db:seed
    ```

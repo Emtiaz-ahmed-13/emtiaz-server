@@ -7,7 +7,7 @@
     "start:prod": "node ./dist/server.js",
     "start": "node ./dist/server.js",
     "build": "prisma generate && tsc",
-    "vercel-build": "prisma generate && prisma migrate deploy",
+    "vercel-build": "prisma generate",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
