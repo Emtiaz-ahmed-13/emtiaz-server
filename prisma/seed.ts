@@ -101,6 +101,8 @@ async function main() {
         ],
         screenshots: [
           "https://i.ibb.co/8D7CfD5Q/pro.jpg",
+          "https://i.ibb.co/bRX9mrWp/Screenshot-2026-05-29-at-3-25-42-PM.png",
+          "https://i.ibb.co/QFZzB1f5/Screenshot-2026-05-29-at-3-26-13-PM.png",
         ],
       },
       {
