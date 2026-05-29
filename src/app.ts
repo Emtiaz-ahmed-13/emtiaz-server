@@ -3,8 +3,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./app/routes";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
+import { apiLimiter } from "./app/middleware/rateLimiter";
 
 const app: Application = express();
+
+app.set("trust proxy", 1);
 
 // CORS — allow local dev + any configured origins (comma-separated env var)
 const envAllowed = (process.env.CORS_ORIGINS || "")
@@ -58,7 +61,7 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.use("/api/v1", router);
+app.use("/api/v1", apiLimiter, router);
 
 app.use(globalErrorHandler);
 

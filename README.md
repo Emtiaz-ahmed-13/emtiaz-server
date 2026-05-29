@@ -260,10 +260,30 @@ curl http://localhost:5001/api/v1/portfolio
 |---|---|
 | `npm run dev` | Start local server with hot reload |
 | `npm run build` | Generate Prisma client and compile TypeScript |
+| `npm run test` | Run API behavior and middleware tests |
+| `npm run test:watch` | Run tests in watch mode while developing |
 | `npm run start` | Run compiled server |
 | `npm run db:migrate` | Create/apply dev migration |
 | `npm run db:seed` | Seed admin and portfolio data |
 | `npm run db:reset` | Reset database and rerun migrations |
+
+## Testing & Rate Limits
+
+The API uses `express-rate-limit` in two layers:
+
+- General API traffic: `300` requests per IP per `15` minutes on `/api/v1`.
+- Contact form: `10` submissions per IP per `15` minutes.
+
+Tests use `vitest` + `supertest`:
+
+- `tests/app.test.ts` checks the root health response and structured 404 JSON.
+- `tests/rateLimiter.test.ts` proves the limiter allows requests up to the configured limit, then returns `429`.
+
+Run them with:
+
+```bash
+npm run test
+```
 
 ## Deployment
 

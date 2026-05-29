@@ -1,10 +1,35 @@
 import { rateLimit } from "express-rate-limit";
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 5, // Limit each IP to 5 requests per `window` (here, per 15 minutes).
-  standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-  // store: ... , // Redis, Memcached, etc. See below.
+
+type RateLimiterOptions = {
+  windowMs: number;
+  limit: number;
+  message: string;
+};
+
+export const createRateLimiter = ({
+  windowMs,
+  limit,
+  message,
+}: RateLimiterOptions) =>
+  rateLimit({
+    windowMs,
+    limit,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+      success: false,
+      message,
+    },
+  });
+
+export const apiLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  message: "Too many API requests. Please try again later.",
 });
 
-export default limiter;
+export const contactLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  message: "Too many contact requests. Please try again later.",
+});
