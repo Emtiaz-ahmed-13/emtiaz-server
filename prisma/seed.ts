@@ -37,8 +37,8 @@ async function main() {
 
   await prisma.profile.create({
     data: {
-      headline: "Full Stack Developer",
-      bio: "I build modern web applications with TypeScript, React, Node.js, NestJS, and PostgreSQL. Passionate about clean APIs, scalable backends, and polished user experiences.",
+      headline: "Full Stack Engineer",
+      bio: "I ship reliable full-stack products with TypeScript, React, Node.js, and PostgreSQL: clear APIs, durable data models, and polished user flows.",
       location: "Bangladesh",
       email: adminEmail,
       avatarUrl: "https://i.ibb.co/wFmx4Rjp/pp2.jpg",
@@ -302,7 +302,7 @@ async function main() {
     data: [
       {
         company: "Independent · Self-employed",
-        position: "Full Stack Developer",
+        position: "Full Stack Engineer",
         location: "Dhaka, Bangladesh",
         description:
           "Designing and shipping production-grade full-stack web apps end-to-end. Owned the full surface area — product scoping, system architecture, backend (Node.js, Express, NestJS, PostgreSQL, Prisma, MongoDB), frontend (Next.js, React, TypeScript, Tailwind), and Docker- / Vercel-based deployment.\n\nNotable builds:\n• PurrfectHub — adoption platform with multi-step applications.\n• SkillSync — freelancer ↔ client collaboration hub with escrow + Kanban.\n• TradeNest — production-grade e-commerce backend API with Swagger docs, rate limiting, and security hardening.\n• EduMentor AI — led a 4-engineer team on a MERN-stack learning platform; owned architecture, API contract, JWT auth flow, PR review, and the Vercel pipeline. Shipped MVP in 6 weeks with 100+ PRs across two repos and zero production rollbacks.",
