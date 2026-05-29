@@ -47,6 +47,17 @@ The API supports:
 - **Image URL resolver:** converts ImgBB viewer links (`ibb.co/...`) into direct CDN assets (`i.ibb.co/...`).
 - **Dev-friendly CORS:** any localhost port is allowed in development; Vercel previews are allowed by default.
 
+## Quality Evidence
+
+| Signal | Evidence |
+|---|---|
+| API surface | Portfolio, Project, Blog, Contact, Auth, Profile, Skill, Experience, Education modules |
+| Route coverage | Public read routes, protected admin CRUD routes, contact inbox routes |
+| Tests | `7` Vitest/Supertest checks across health, 404, validation, auth, and rate limiting |
+| Rate limits | `300` requests / `15m` on `/api/v1`; `10` contact submissions / `15m` |
+| Data safety | Prisma schema + migration-backed PostgreSQL data model |
+| Deployment | Vercel serverless API with `trust proxy` enabled for production rate-limit headers |
+
 ## Architecture
 
 ```mermaid
@@ -278,6 +289,7 @@ Tests use `vitest` + `supertest`:
 
 - `tests/app.test.ts` checks the root health response and structured 404 JSON.
 - `tests/rateLimiter.test.ts` proves the limiter allows requests up to the configured limit, then returns `429`.
+- `tests/routes.test.ts` checks contact validation, login validation, protected blog auth, and invalid blog query handling.
 
 Run them with:
 
