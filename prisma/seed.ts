@@ -67,6 +67,58 @@ async function main() {
   await prisma.project.createMany({
     data: [
       {
+        title: "EventMate",
+        slug: "eventmate",
+        shortDesc:
+          "Full-stack event platform with paid joins, QR tickets, realtime chat, and AWS EC2 deployment",
+        description:
+          "EventMate is a production-shaped event discovery and hosting platform for local communities. It supports public event browsing, role-based dashboards, host event management, Stripe-powered paid joins, QR ticket scanning, reviews, realtime notifications, event chat, discussions, and admin moderation.",
+        techStack: [
+          "Next.js 16",
+          "React 19",
+          "TypeScript",
+          "Tailwind CSS v4",
+          "Node.js",
+          "Express.js",
+          "PostgreSQL",
+          "Prisma 6",
+          "Stripe",
+          "Socket.IO",
+          "Docker",
+          "AWS EC2",
+          "Nginx",
+        ],
+        imageUrl: null,
+        liveUrl: "https://eventmate-client-1.onrender.com/",
+        githubUrl: "https://github.com/Emtiaz-ahmed-13/eventmate",
+        featured: true,
+        published: true,
+        order: 1,
+        role: "Full Stack Engineer",
+        duration: "Production deployment + full-app testing",
+        problem:
+          "Local event organizers need more than a listing page: they need payments, participant approval, ticket verification, host reputation, attendee communication, and admin moderation in one reliable workflow. Without those pieces, events fall back to scattered posts, manual payment checks, and inbox-based participant management.",
+        approach:
+          "I built EventMate as separate Next.js and Express applications with a shared REST contract. The frontend uses Next.js 16 App Router, React 19, TanStack Query, Zustand, React Hook Form, Zod, shadcn/ui, and Stripe Elements. The backend uses Express, TypeScript, Prisma 6, PostgreSQL, JWT access/refresh tokens, ImageKit uploads, Nodemailer, Stripe, Socket.IO, node-cron reminders, and express-rate-limit. I containerized the stack and wired GitHub Actions to build, SSH/rsync into an AWS EC2 host, then rebuild and restart the Docker Compose services behind Nginx.",
+        outcome:
+          "Shipped and tested the full app across public browsing, auth, host tools, paid/free joins, participant approval, QR check-in, reviews, realtime notifications, chat, discussions, and admin moderation. CI runs client unit tests, server tests, client build, server build, and a Playwright smoke test before deployment; production deploys are automated to EC2 with Docker Compose and Nginx.",
+        challenges:
+          "The hardest part was keeping the product workflow coherent across many moving parts: Stripe payment confirmation, participant state, QR ticket generation, realtime notifications, and admin moderation all touch the same event lifecycle. I kept the backend modular, used explicit role checks for USER/HOST/ADMIN paths, and added smoke/unit coverage so deployment changes did not silently break the core event journey.",
+        features: [
+          "Public event browsing with search, category, location, date range, paid-only filters, and pagination",
+          "Authentication with login, registration, forgot password, reset password, and JWT refresh flow",
+          "Host tools for creating, editing, duplicating, cancelling, deleting, and analyzing events",
+          "Free and paid event joins with Stripe payment intent and confirmation flow",
+          "Participant approval, rejection, waitlist, check-in, undo check-in, and QR ticket scanning",
+          "Ticket generation with QR verification, PDF tickets, and email delivery",
+          "Realtime notifications, event reminders, event chat, and public discussion/Q&A",
+          "Host follow system, verified host discovery, and host reviews",
+          "Admin dashboard for users, hosts, events, host verification, event moderation, analytics, and system logs",
+          "AWS EC2 deployment through GitHub Actions, Docker Compose, and Nginx",
+        ],
+        screenshots: [],
+      },
+      {
         title: "PurrfectHub",
         slug: "purrfecthub",
         shortDesc: "Adoption platform connecting cat lovers with feline companions",
@@ -78,7 +130,7 @@ async function main() {
         githubUrl: "https://github.com/Emtiaz-ahmed-13/purrfecthub_client",
         featured: true,
         published: true,
-        order: 1,
+        order: 2,
         role: "Full Stack Engineer",
         duration: "6 weeks",
         problem:
@@ -117,7 +169,7 @@ async function main() {
         githubUrl: "https://github.com/Emtiaz-ahmed-13/skillsync_client",
         featured: true,
         published: true,
-        order: 2,
+        order: 3,
         role: "Full Stack Engineer · Designer",
         duration: "8 weeks",
         problem:
@@ -154,7 +206,7 @@ async function main() {
         githubUrl: "https://github.com/Emtiaz-ahmed-13/tradenest_frontend",
         featured: true,
         published: true,
-        order: 3,
+        order: 4,
         role: "Backend Engineer",
         duration: "4 weeks",
         problem:
@@ -204,7 +256,7 @@ async function main() {
         githubUrl: "https://github.com/Emtiaz-ahmed-13/edumentor_ai_client",
         featured: true,
         published: true,
-        order: 4,
+        order: 5,
         role: "Team Lead · Full Stack Engineer",
         duration: "6 weeks · 4-person team",
         problem:
@@ -254,7 +306,7 @@ async function main() {
         githubUrl: "https://github.com/Emtiaz-ahmed-13/nebula",
         featured: true,
         published: true,
-        order: 5,
+        order: 6,
         role: "Full Stack Engineer",
         duration: "2 weeks",
         problem:
@@ -307,7 +359,7 @@ async function main() {
         position: "Full Stack Engineer",
         location: "Dhaka, Bangladesh",
         description:
-          "Designing and shipping production-grade full-stack web apps end-to-end. Owned the full surface area — product scoping, system architecture, backend (Node.js, Express, NestJS, PostgreSQL, Prisma, MongoDB), frontend (Next.js, React, TypeScript, Tailwind), and Docker- / Vercel-based deployment.\n\nNotable builds:\n• PurrfectHub — adoption platform with multi-step applications.\n• SkillSync — freelancer ↔ client collaboration hub with escrow + Kanban.\n• TradeNest — production-grade e-commerce backend API with Swagger docs, rate limiting, and security hardening.\n• EduMentor AI — led a 4-engineer team on a MERN-stack learning platform; owned architecture, API contract, JWT auth flow, code review, and the Vercel pipeline. Shipped MVP in 6 weeks across separate client/server deployments.",
+          "Designing and shipping production-grade full-stack web apps end-to-end. Owned the full surface area — product scoping, system architecture, backend (Node.js, Express, NestJS, PostgreSQL, Prisma, MongoDB), frontend (Next.js, React, TypeScript, Tailwind), and Docker- / Vercel- / AWS-based deployment.\n\nNotable builds:\n• EventMate — full-stack event platform with Stripe payments, QR tickets, realtime chat/notifications, admin moderation, full-app tests, and AWS EC2 deployment through Docker Compose + Nginx.\n• PurrfectHub — adoption platform with multi-step applications.\n• SkillSync — freelancer ↔ client collaboration hub with escrow + Kanban.\n• TradeNest — production-grade e-commerce backend API with Swagger docs, rate limiting, and security hardening.\n• EduMentor AI — led a 4-engineer team on a MERN-stack learning platform; owned architecture, API contract, JWT auth flow, code review, and the Vercel pipeline. Shipped MVP in 6 weeks across separate client/server deployments.",
         startDate: new Date("2024-01-01"),
         endDate: null,
         current: true,
